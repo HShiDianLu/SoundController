@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audio Control Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="//cdn.bootcss.com/bootstrap-slider/9.4.1/css/bootstrap-slider.css" rel="stylesheet">
+    <style>
+        .form-check {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <br/>
+    <h2>Sound Controller<br/><h5>By HShiDianLu.</h5></h2>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary" onclick="pressKey('left');"><</button>
+                <button type="button" class="btn btn-primary" onclick="pressKey('right');">></button>
+            </div>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-danger" onclick="pressKey('esc');">Esc</button>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <label for="customRange1" class="form-label">Volume: <span id="vol">-</span></label>
+            <input type="range" class="form-range" id="customRange1" value="{{vol}}">
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick="setVol();">Set</button>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-outline-primary {% if pause %}active{% endif %}"
+                    data-bs-toggle="button" {% if pause %} aria-pressed="true" {% endif %} onclick="pause()">Pause
+            </button>
+        </div>
+<!--        <div class="col">-->
+<!--            <div class="form-check">-->
+<!--                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked1" checked>-->
+<!--                <label class="form-check-label" for="flexCheckChecked1">-->
+<!--                    Fade In/Out-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+    <br/>
+    <p>Response: <span id="response">-</span></p>
+    <be/>
+    <div class="list-group">
+        {% for i in dirs %}
+        <button type="button" class="list-group-item list-group-item-action" onclick="play('{{i}}');">{{i}}</button>
+        {% endfor %}
+    </div>
+    <br/>
+<!--    <div class="form-check">-->
+<!--        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>-->
+<!--        <label class="form-check-label" for="flexCheckChecked">-->
+<!--            Animation-->
+<!--        </label>-->
+<!--    </div>-->
+    <br/><br/>
+</div>
+<script>
+    setInterval(function () {
+        $("#vol").text($("#customRange1").val());
+    }, 100)
+
+    function play(audio) {
+        $.ajax({
+            url: "/play/" + audio,
+            type: "GET",
+            data: {
+                'p': 1,
+            },
+            beforeSend: function () {
+                $("#response").text("Sending");
+            },
+            success: function (result) {
+                console.log(result)
+                $("#response").text(result['result']);
+            }
+        })
+    }
+
+    function pause() {
+        $.ajax({
+            url: "/pause",
+            type: "GET",
+            data: {
+                'fade': 1,
+            },
+            beforeSend: function () {
+                $("#response").text("Sending");
+            },
+            success: function (result) {
+                console.log(result)
+                $("#response").text(result['result'] + ", " + result['data']);
+            }
+        })
+    }
+
+    function pressKey(key) {
+        $.ajax({
+            url: "/key",
+            type: "GET",
+            data: {
+                'key': key,
+            },
+            beforeSend: function () {
+                $("#response").text("Sending");
+            },
+            success: function (result) {
+                console.log(result)
+                $("#response").text(result['result'] + ", " + result['data']);
+            }
+        })
+    }
+
+    function setVol() {
+        $.ajax({
+            url: "/setvol",
+            type: "GET",
+            data: {
+                'val': $('#customRange1').val(),
+                'fade': 1
+            },
+            beforeSend: function () {
+                $("#response").text("Sending");
+            },
+            success: function (result) {
+                console.log(result)
+                $("#response").text(result['result'] + ", " + result['data']);
+            }
+        })
+    }
+</script>
+<script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+</body>
+</html>
